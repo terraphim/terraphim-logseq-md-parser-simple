@@ -1,7 +1,14 @@
 VERSION 0.7
-FROM  rust:1.70
+PROJECT terraphim/terraphim-logseq-md-parser-simple
+FROM rust:1.70
 WORKDIR /code
 
+main-pipeline:
+  PIPELINE --push 
+  TRIGGER push main 
+  TRIGGER pr main 
+  ARG tag=ci-latest
+  BUILD +docker --tag=$tag
 
 deps:
   COPY Cargo.lock Cargo.toml .
@@ -23,5 +30,5 @@ docker:
   ARG --required tag
   FROM ubuntu:18.04
   COPY +build/logseq-md-parser-simple logseq-md-parser-simple
-  ENTRYPOINT ["./logseq_md_parser"]
-  SAVE IMAGE --push aks/logseq_md_parser:$tag
+  ENTRYPOINT ["./logseq-md-parser-simple"]
+  SAVE IMAGE --push aks/logseq-md-parser-simple:$tag
