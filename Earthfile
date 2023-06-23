@@ -7,7 +7,7 @@ main-pipeline:
   PIPELINE --push 
   TRIGGER push main 
   TRIGGER pr main 
-  ARG tag=ci-latest
+  ARG tag=latest
   BUILD +docker --tag=$tag
 
 deps:
@@ -28,7 +28,6 @@ build:
 
 docker:
   ARG --required tag
-  FROM ubuntu:18.04
   COPY +build/logseq-md-parser-simple logseq-md-parser-simple
-  ENTRYPOINT ["./logseq-md-parser-simple"]
+  ENTRYPOINT ["./logseq-md-parser-simple","--path","/data"]
   SAVE IMAGE --push aks/logseq-md-parser-simple:$tag
