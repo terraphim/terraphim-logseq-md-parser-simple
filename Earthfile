@@ -1,5 +1,5 @@
 VERSION 0.7
-PROJECT terraphim/terraphim-logseq-md-parser-simple
+PROJECT applied-knowledge-systems/terraphim-logseq-md-parser-simple
 FROM rust:1.70
 WORKDIR /code
 
