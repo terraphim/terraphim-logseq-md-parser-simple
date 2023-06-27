@@ -30,4 +30,4 @@ docker:
   ARG --required tag
   COPY +build/logseq-md-parser-simple logseq-md-parser-simple
   ENTRYPOINT ["./logseq-md-parser-simple","--path","/data"]
-  SAVE IMAGE --push aks/logseq-md-parser-simple:$tag
+  SAVE IMAGE --push ghcr.io/applied-knowledge-systems/logseq-md-parser-simple:$tag
