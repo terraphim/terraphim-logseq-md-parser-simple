@@ -60,13 +60,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Some((k, v)) => (k, v),
                 None => continue,
             };
+            term_to_id.insert(concept.clone(), ulid.clone());
+            id_to_term.insert(ulid.clone(), concept.clone());
             // TODO: below are stubs to be used for filtering concepts, they require populated knowledge graph.
             if key == "type" {
                 println!("Type {:?}", key);
                 if value.contains("[[Concept]]") {
                     println!("Found concept {:?}", value);
-                    term_to_id.insert(concept.clone(), ulid.clone());
-                    id_to_term.insert(ulid.clone(), concept.clone());
                 }
             }
             if key == "public" {
