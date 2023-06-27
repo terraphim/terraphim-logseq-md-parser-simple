@@ -8,7 +8,7 @@ main-pipeline:
   TRIGGER push main 
   TRIGGER pr main 
   ARG tag=latest
-  BUILD +docker --tag=$tag
+  BUILD +build --tag=$tag
 
 deps:
   COPY Cargo.lock Cargo.toml .
@@ -30,4 +30,4 @@ docker:
   ARG --required tag
   COPY +build/logseq-md-parser-simple logseq-md-parser-simple
   ENTRYPOINT ["./logseq-md-parser-simple","--path","/data"]
-  SAVE IMAGE --push ghcr.io/applied-knowledge-systems/logseq-md-parser-simple:$tag
+  SAVE IMAGE --push ghcr.io/applied-knowledge-systems/logseq-md-parser-simple:latest
