@@ -39,6 +39,7 @@ struct TermId {
 fn main() -> Result<(), Box<dyn Error>> {
     let mut term_to_id: HashMap<String, String> = HashMap::new();
     let mut id_to_term: HashMap<String, String> = HashMap::new();
+    let mut dictionary: Vec<TermId> = Vec::new();
     let cli = Cli::parse();
     let config_path = if let Some(path) = cli.path.as_deref() {
         println!("Parsing md from path: {}", path.display());
@@ -109,11 +110,19 @@ fn main() -> Result<(), Box<dyn Error>> {
             println!("Not normalized term {:?}", term);
             term.clone().to_string()
         };
-
-        wtr.serialize(TermId{term:term.to_string(),id:id.to_string(),nterm:nterm})?;
+        let item = TermId {
+            term: term.clone(),
+            id: id.clone(),
+            nterm: nterm
+        };
+        wtr.serialize(&item)?;
+        dictionary.push(item);
     }
     wtr.flush()?;
-
+    std::fs::write(
+        "./data/term_to_id.json",
+        serde_json::to_string_pretty(&dictionary).unwrap(),
+    )?;
 
     let mut writer = WriterBuilder::new()
         .has_headers(true)
