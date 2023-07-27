@@ -279,6 +279,8 @@ dependencies = [
  "glob",
  "lazy_static",
  "regex",
+ "serde",
+ "serde_derive",
  "ulid",
 ]
 
