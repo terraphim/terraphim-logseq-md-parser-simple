@@ -12,11 +12,10 @@ use csv::WriterBuilder;
 use flate2::write::GzEncoder;
 use flate2::Compression;
 
-//  can't avoid serde in Rust 
+//  can't avoid serde in Rust
 extern crate serde;
- #[macro_use]
+#[macro_use]
 extern crate serde_derive;
-
 
 #[derive(ClapParser)]
 #[command(author, version, about, long_about = None)]
@@ -33,13 +32,19 @@ struct Cli {
 struct TermId {
     term: String,
     id: String,
-    nterm:String
+    nterm: String,
+}
+
+#[derive(Debug, Serialize)]
+struct IdNterm {
+    id: String,
+    nterm: String,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut term_to_id: HashMap<String, String> = HashMap::new();
     let mut id_to_term: HashMap<String, String> = HashMap::new();
-    let mut dictionary: Vec<TermId> = Vec::new();
+    let mut dictionary: HashMap<String, IdNterm> = HashMap::new();
     let cli = Cli::parse();
     let config_path = if let Some(path) = cli.path.as_deref() {
         println!("Parsing md from path: {}", path.display());
@@ -95,28 +100,34 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
     let mut wtr = WriterBuilder::new()
-    .has_headers(true)
-    .from_writer(GzEncoder::new(
-        File::create("./data/term_to_id.csv.gz")?,
-        Compression::default(),
-    ));
+        .has_headers(true)
+        .from_writer(GzEncoder::new(
+            File::create("./data/term_to_id.csv.gz")?,
+            Compression::default(),
+        ));
     for (term, id) in &term_to_id {
         let value = id_to_term.get(id); // Get reference to the value.
-        // Print the `content` as in previous example.
+                                        // Print the `content` as in previous example.
         let nterm = if let Some(v) = value {
             println!("Showing content normalized term {:?}", v);
             v.clone().to_string()
-        }else{
+        } else {
             println!("Not normalized term {:?}", term);
             term.clone().to_string()
         };
         let item = TermId {
             term: term.clone(),
             id: id.clone(),
-            nterm: nterm
+            nterm: nterm,
         };
         wtr.serialize(&item)?;
-        dictionary.push(item);
+        dictionary.insert(
+            item.term,
+            IdNterm {
+                id: item.id,
+                nterm: item.nterm,
+            },
+        );
     }
     wtr.flush()?;
     std::fs::write(
