@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 
 use clap::Parser as ClapParser;
 use std::collections::HashMap;
-use ulid::Ulid;
+// use ulid::Ulid;
 
 use csv::WriterBuilder;
 use flate2::write::GzEncoder;
@@ -31,19 +31,19 @@ struct Cli {
 #[derive(Debug, Serialize)]
 struct TermId {
     term: String,
-    id: String,
+    id: u64,
     nterm: String,
 }
 
 #[derive(Debug, Serialize)]
 struct IdNterm {
-    id: String,
+    id: u64,
     nterm: String,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let mut term_to_id: HashMap<String, String> = HashMap::new();
-    let mut id_to_term: HashMap<String, String> = HashMap::new();
+    let mut term_to_id: HashMap<String, u64> = HashMap::new();
+    let mut id_to_term: HashMap<u64, String> = HashMap::new();
     let mut dictionary: HashMap<String, IdNterm> = HashMap::new();
     let cli = Cli::parse();
     let config_path = if let Some(path) = cli.path.as_deref() {
@@ -56,7 +56,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let binding = config_path.join("**/*.md");
     let glob_path = binding.to_str().unwrap();
     println!("{}", glob_path);
+    let mut counter: u64 = 0;
     for entry in glob(glob_path)? {
+        counter = counter + 1;
         let path = entry?;
         let concept = path
             .file_stem()
@@ -65,7 +67,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             .ok_or("Failed to convert file stem to string")?;
         println!("Concept: {}", concept);
         let concept = concept.to_string().trim().to_lowercase();
-        let ulid = Ulid::new().to_string();
+        // let ulid = Ulid::new().to_string();
+        let ulid = counter;
         println!("Ulid for concept {}", ulid.clone());
 
         let file = File::open(path)?;
@@ -80,6 +83,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             };
             term_to_id.insert(concept.clone(), ulid.clone());
             id_to_term.insert(ulid.clone(), concept.clone());
+
             // TODO: below are stubs to be used for filtering concepts, they require populated knowledge graph.
             if key == "type" {
                 println!("Type {:?}", key);
@@ -143,7 +147,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         ));
 
     for (id, term) in id_to_term {
-        writer.write_record(&[id, term])?;
+        // println!("{id},{term}");
+        writer.write_record(&[id.to_string(), term])?;
     }
     writer.flush()?;
     Ok(())
