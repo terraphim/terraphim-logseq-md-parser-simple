@@ -97,7 +97,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             if key == "synonyms" {
                 for term in value.split(',').collect::<Vec<&str>>() {
                     let synonym = term.trim().trim().to_lowercase();
-                    term_to_id.insert(synonym.clone(), ulid.clone());
+                    if synonym.is_empty() {
+                        println!("Empty synonym tag inside the concept");
+                    } else {
+                        term_to_id.insert(synonym.clone(), ulid.clone());
+                    }
                 }
             }
             println!("{}: {}", key, value);
